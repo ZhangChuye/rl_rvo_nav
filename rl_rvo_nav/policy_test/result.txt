@@ -1,0 +1,2 @@
+policy_name: drl_rvo_10_dis3  successful rate: 72.00% average EpLen: 99.15 std length 17.27 average speed: 1.0 std speed 0.14
+policy_name: drl_rvo_10_dis3  successful rate: 83.00% average EpLen: 79.49 std length 4.9 average speed: 1.11 std speed 0.07
