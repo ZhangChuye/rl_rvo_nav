@@ -1,0 +1,7 @@
+matplotlib
+numpy
+scipy
+transforms3d
+gym==0.26.2
+Pathlib
+mpi4py

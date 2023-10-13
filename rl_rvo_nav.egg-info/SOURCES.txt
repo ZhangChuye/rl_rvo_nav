@@ -1,0 +1,8 @@
+LICENSE
+README.md
+setup.py
+rl_rvo_nav.egg-info/PKG-INFO
+rl_rvo_nav.egg-info/SOURCES.txt
+rl_rvo_nav.egg-info/dependency_links.txt
+rl_rvo_nav.egg-info/requires.txt
+rl_rvo_nav.egg-info/top_level.txt
