@@ -35,7 +35,8 @@ class rnn_ac(nn.Module):
         super().__init__()
 
         self.use_gpu = use_gpu
-        torch.cuda.synchronize()
+        if use_gpu:
+            torch.cuda.synchronize()
         
         if rnn_mode == 'biGRU':
             obs_dim = (rnn_hidden_dim + state_dim)
@@ -60,6 +61,11 @@ class rnn_ac(nn.Module):
             v = self.v(obs)
 
             if self.use_gpu:
+                a = a.cpu()
+                logp_a = logp_a.cpu()
+                v = v.cpu()
+
+            else:
                 a = a.cpu()
                 logp_a = logp_a.cpu()
                 v = v.cpu()
