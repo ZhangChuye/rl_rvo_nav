@@ -325,7 +325,7 @@ class multi_ppo:
                 self.vf_optimizer.step()
                 
             writer.add_scalar('Value Loss/Robot {}'.format(r), loss_v.item(), epoch)
-            print("yes")
+            # print("yes")
 
 
     def compute_loss_v(self, data):
