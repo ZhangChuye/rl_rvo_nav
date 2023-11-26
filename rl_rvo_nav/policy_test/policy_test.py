@@ -33,7 +33,9 @@ cur_path = Path(__file__).parent.parent
 
 # model_base_path = str(cur_path) + '/' + policy_args.model_path
 model_base_path = dirname(dirname(abspath(__file__))) + '/' + policy_args.model_path
+print(model_base_path)
 args_path = model_base_path + '/' + policy_args.arg_name
+print(args_path)
 
 # args from train
 r = open(args_path, 'rb')

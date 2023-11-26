@@ -1,2 +1,12 @@
 policy_name: drl_rvo_10_dis3  successful rate: 72.00% average EpLen: 99.15 std length 17.27 average speed: 1.0 std speed 0.14
 policy_name: drl_rvo_10_dis3  successful rate: 83.00% average EpLen: 79.49 std length 4.9 average speed: 1.11 std speed 0.07
+policy_name: drl_rvo_6_dis3  successful rate: 61.00% average EpLen: 74.93 std length 5.61 average speed: 1.12 std speed 0.07
+policy_name: drl_rvo_6_dis3  successful rate: 89.00% average EpLen: 77.9 std length 8.03 average speed: 1.1 std speed 0.1
+policy_name: drl_rvo_6_dis3  successful rate: 86.00% average EpLen: 76.34 std length 7.14 average speed: 1.12 std speed 0.1
+policy_name: drl_rvo_8_dis3  successful rate: 82.00% average EpLen: 81.57 std length 6.0 average speed: 1.09 std speed 0.08
+policy_name: drl_rvo_10_dis3  successful rate: 65.00% average EpLen: 84.83 std length 6.38 average speed: 1.06 std speed 0.08
+policy_name: drl_rvo_10_dis3  successful rate: 48.00% average EpLen: 105.71 std length 7.68 average speed: 0.97 std speed 0.08
+policy_name: drl_rvo_10_dis3  successful rate: 56.00% average EpLen: 108.54 std length 9.67 average speed: 0.94 std speed 0.09
+policy_name: drl_rvo_10_dis3  successful rate: 48.00% average EpLen: 132.75 std length 45.01 average speed: 0.84 std speed 0.27
+policy_name: drl_rvo_10_dis3  successful rate: 53.00% average EpLen: 107.4 std length 8.8 average speed: 0.94 std speed 0.08
+policy_name: drl_rvo_10_dis3  successful rate: 56.00% average EpLen: 108.14 std length 10.17 average speed: 0.95 std speed 0.09

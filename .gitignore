@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 model_save/
+rl_rvo_nav/policy_train/runs

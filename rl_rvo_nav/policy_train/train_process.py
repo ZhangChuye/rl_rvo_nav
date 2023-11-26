@@ -10,6 +10,8 @@ from pathlib import Path
 from rl_rvo_nav.policy_train.multi_ppo import multi_ppo
 from rl_rvo_nav.policy.policy_rnn_ac import rnn_ac
 
+
+
 # path set
 cur_path = Path(__file__).parent
 world_abs_path = str(cur_path/'train_world.yaml')
@@ -67,7 +69,7 @@ par_train.add_argument('--clip_ratio', default=0.2)
 par_train.add_argument('--train_pi_iters', default=50)
 par_train.add_argument('--train_v_iters', default=50)
 par_train.add_argument('--target_kl',type=float, default=0.05)
-par_train.add_argument('--render', default=True)
+par_train.add_argument('--render', default=False)
 par_train.add_argument('--render_freq', default=50)
 par_train.add_argument('--con_train', action='store_true')
 par_train.add_argument('--seed', default=7)
@@ -95,7 +97,7 @@ model_name = model_name_check.format(counter)
 
 load_fname = args.load_path + args.load_name
 
-env = gym.make(args.env_name, world_name=args.world_path, robot_number=args.robot_number, neighbors_region=args.neighbors_region, neighbors_num=args.neighbors_num, robot_init_mode=args.init_mode, env_train=args.env_train, random_bear=args.random_bear, random_radius=args.random_radius, reward_parameter=args.reward_parameter, full=args.full)
+env = gym.make(args.env_name, world_name=args.world_path, robot_number=args.robot_number, neighbors_region=args.neighbors_region, neighbors_num=args.neighbors_num, robot_init_mode=args.init_mode, env_train=args.env_train, random_bear=args.random_bear, random_radius=args.random_radius, reward_parameter=args.reward_parameter, full=args.full, render=False)
 
 test_env = gym.make(args.env_name, world_name=args.world_path, robot_number=args.robot_number, neighbors_region=args.neighbors_region, neighbors_num=args.neighbors_num, robot_init_mode=args.init_mode, env_train=False, random_bear=args.random_bear, random_radius=args.random_radius, reward_parameter=args.reward_parameter, plot=False, full=args.full)
 

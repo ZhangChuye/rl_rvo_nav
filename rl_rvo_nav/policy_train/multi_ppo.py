@@ -9,6 +9,10 @@ import os
 from rl_rvo_nav.policy_test.post_train import post_train
 import threading
 from mpi4py import MPI
+from torch.utils.tensorboard import SummaryWriter
+
+writer = SummaryWriter('runs')
+
 
 def combined_shape(length, shape=None):
     if shape is None:
@@ -48,6 +52,7 @@ class multi_PPObuf:
         self.logp_buf = np.zeros(size, dtype=np.float32)
         self.gamma, self.lam = gamma, lam
         self.ptr, self.path_start_idx, self.max_size = 0, 0, size
+        self.epoch = 0
     
     def store(self, obs, act, rew, val, logp):
         """
@@ -267,9 +272,9 @@ class multi_ppo:
 
                 if self.rank == 0:
                     for data_list in rank_data_list:
-                        self.update(data_list)
+                        self.update(data_list, epoch)
             else:
-                self.update(data_list)
+                self.update(data_list, epoch)
     
             # animate
             # if epoch == 1:
@@ -282,7 +287,7 @@ class multi_ppo:
                 time_cost = time.time()-start_time 
                 print('time cost in one epoch', time_cost, 'estimated remain time', time_cost*(self.epoch-epoch)/3600, 'hours' )
             
-    def update(self, data_list):
+    def update(self, data_list, epoch):
         
         randn = np.arange(self.robot_num)
         np.random.shuffle(randn)
@@ -309,12 +314,18 @@ class multi_ppo:
                 loss_pi.backward()
                 self.pi_optimizer.step()
 
+            writer.add_scalar('Policy Loss/Robot {}'.format(r), loss_pi.item(), epoch)
+            writer.add_scalar('KL Divergence/Robot {}'.format(r), kl, epoch)
+
             # Value function learning
             for i in range(self.train_v_iters):
                 self.vf_optimizer.zero_grad()
                 loss_v = self.compute_loss_v(data)
                 loss_v.backward()
                 self.vf_optimizer.step()
+                
+            writer.add_scalar('Value Loss/Robot {}'.format(r), loss_v.item(), epoch)
+            print("yes")
 
 
     def compute_loss_v(self, data):
@@ -363,7 +374,6 @@ class multi_ppo:
             torch.save(state_dict, fname_check_point.format(index))
                     
 
-                
                 
                   
 
