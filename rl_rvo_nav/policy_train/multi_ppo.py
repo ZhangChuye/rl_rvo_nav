@@ -11,7 +11,6 @@ import threading
 from mpi4py import MPI
 from torch.utils.tensorboard import SummaryWriter
 
-writer = SummaryWriter('runs')
 
 
 def combined_shape(length, shape=None):
@@ -226,6 +225,9 @@ class multi_ppo:
         self.max_update_num = max_update_num
 
         self.mpi = mpi
+        
+        self.writer = SummaryWriter('runs/experiment_{}'.format(self.save_name))
+        
 
         if self.mpi:
             self.comm = MPI.COMM_WORLD
@@ -343,6 +345,10 @@ class multi_ppo:
             mean = [round(np.mean(r), 2) for r in ep_ret_list_mean]               
             max_ret = [round(np.max(r), 2) for r in ep_ret_list_mean]   
             min_ret = [round(np.min(r), 2) for r in ep_ret_list_mean]   
+           
+            mean_reward = np.mean([np.mean(ep_ret) for ep_ret in ep_ret_list_mean])
+            self.writer.add_scalar('Reward/average_reward', mean_reward, epoch)
+            
             print('The reward in this epoch: ', 'min', min_ret, 'mean', mean, 'max', max_ret)
             ep_ret_list_mean = [[] for i in range(self.robot_num)]
 
@@ -373,8 +379,7 @@ class multi_ppo:
                 print('time cost in one epoch', time_cost, 'estimated remain time', time_cost*(self.epoch-epoch)/3600, 'hours' )
             
             
-            mean_reward = np.mean([np.mean(ep_ret) for ep_ret in ep_ret_list_mean])
-            writer.add_scalar('Reward/average_reward', mean_reward, epoch)
+            
 
     def update(self, data_list, epoch):
         
@@ -403,8 +408,8 @@ class multi_ppo:
                 loss_pi.backward()
                 self.pi_optimizer.step()
 
-            writer.add_scalar('Loss/policy_loss_robot_{}'.format(r), loss_pi.item(), epoch)
-            writer.add_scalar('KL_Divergence/robot_{}'.format(r), kl, epoch)
+            self.writer.add_scalar('Loss/policy_loss_robot_{}'.format(r), loss_pi.item(), epoch)
+            self.writer.add_scalar('KL_Divergence/robot_{}'.format(r), kl, epoch)
 
             # Value function learning
             for i in range(self.train_v_iters):
@@ -413,7 +418,7 @@ class multi_ppo:
                 loss_v.backward()
                 self.vf_optimizer.step()
                 
-            writer.add_scalar('Value Loss/Robot {}'.format(r), loss_v.item(), epoch)
+            self.writer.add_scalar('Value Loss/Robot {}'.format(r), loss_v.item(), epoch)
             # print("yes")
 
 

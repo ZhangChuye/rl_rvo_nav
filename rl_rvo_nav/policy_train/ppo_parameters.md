@@ -1,3 +1,6 @@
+### PPO Parameters
+---
+
 Certainly, let's go through each parameter in the `multi_ppo` class's `__init__` method:
 
 1. **env**: The environment in which the agents (robots) operate. It should be compliant with OpenAI Gym's interface.
