@@ -99,6 +99,76 @@ class multi_PPObuf:
         self.ptr, self.path_start_idx = 0, 0
 
 class multi_ppo:
+    '''
+        GPT explaination of parameters
+        
+        env: The environment in which the agents (robots) operate. It should be compliant with OpenAI Gym's interface.
+
+        ac_policy: The actor-critic policy model to be used in the PPO algorithm.
+        
+        pi_lr (Policy Learning Rate, default=3e-4): The learning rate for updating the policy network.
+        
+        vf_lr (Value Function Learning Rate, default=1e-3): The learning rate for updating the value function network.
+        
+        train_epoch (default=50): The number of training epochs.
+        
+        steps_per_epoch (default=600): The number of steps (agent-environment interactions) to perform in each training epoch.
+        
+        max_ep_len (Maximum Episode Length, default=300): The maximum length of an episode.
+        
+        gamma (default=0.99): The discount factor used in the calculation of returns and advantages. It determines how much future rewards are discounted.
+        
+        lam (Lambda for GAE, default=0.97): The lambda parameter for Generalized Advantage Estimation (GAE), which balances bias and variance in advantage estimation.
+        
+        clip_ratio (default=0.2): The PPO clipping ratio, used to constrain the policy update, preventing large shifts.
+        
+        train_pi_iters (default=100): The number of iterations to update the policy network in each epoch.
+        
+        train_v_iters (default=100): The number of iterations to update the value function network in each epoch.
+        
+        target_kl (default=0.01): The target KL divergence between new and old policies, used for early stopping of policy updates.
+        
+        render (default=False): Whether to render the environment for visualization.
+        
+        render_freq (default=20): Frequency (in epochs) at which the environment rendering occurs.
+        
+        con_train (Continue Training, default=False): A flag to indicate whether to continue training from a saved model.
+        
+        seed (default=7): The random seed for reproducibility.
+        
+        save_freq (default=50): Frequency (in epochs) at which the model is saved.
+        
+        save_figure (default=False): Whether to save rendered figures during training.
+        
+        save_path (default='test/'): The path for saving models and figures.
+        
+        save_name (default='test'): Base name for saved files.
+        
+        load_fname: File name to load a saved model (used if con_train is True).
+        
+        use_gpu (default=False): Whether to use a GPU for training.
+        
+        reset_mode (default=1): The mode for resetting the environment.
+        
+        save_result (default=False): Whether to save the training results.
+        
+        counter (default=0): A counter used internally, possibly for managing iterations or episodes.
+        
+        test_env: The testing environment, possibly different from the training environment.
+        
+        lr_decay_epoch (default=1000): The epoch at which learning rate decay starts or is applied.
+        
+        max_update_num (default=10): The maximum number of updates to be performed in each training iteration.
+        
+        mpi (default=False): Flag to indicate whether to use MPI for distributed training.
+        
+        figure_save_path: Path to save figures, if different from save_path.
+        
+        kwargs: Additional keyword arguments, allowing for flexibility and extension of the class.
+    '''
+    
+    
+    
     def __init__(self, env, ac_policy, pi_lr=3e-4, vf_lr=1e-3, train_epoch=50, steps_per_epoch = 600, max_ep_len=300, gamma=0.99, lam=0.97, clip_ratio=0.2, train_pi_iters=100, train_v_iters=100, target_kl=0.01, render=False, render_freq=20, con_train=False, seed=7, save_freq=50, save_figure=False, save_path='test/', save_name='test', load_fname=None, use_gpu = False, reset_mode=1, save_result=False, counter=0, test_env=None, lr_decay_epoch=1000, max_update_num=10, mpi=False, figure_save_path=None, **kwargs):
 
         torch.manual_seed(seed)
@@ -182,8 +252,11 @@ class multi_ppo:
                 # if self.save_figure and epoch == 1:
                 #     self.env.render(save=True, path=self.save_path+'figure/', i=t)
 
+
+                # Initialize lists to store actions, values, log probabilities, and absolute actions for each robot
                 a_list, v_list, logp_list, abs_action_list = [], [], [], []
-            
+
+                # Loop through each robot to get actions and values
                 for i in range(self.robot_num):
                     obs = obs_list[i]
 
@@ -199,9 +272,11 @@ class multi_ppo:
                     abs_action = np.round(abs_action, 2)
                     abs_action_list.append(abs_action)
 
+                # Step the environment with the calculated actions and get next observations, rewards, dones, and infos
                 next_obs_list, reward_list, done_list, info_list = self.env.step_ir(abs_action_list, vel_type = 'omni')
 
                 # save to buffer
+                # Store the experience in the buffer and update the return and episode length for each robot
                 for i in range(self.robot_num):
                     
                     self.buf_list[i].store(obs_list[i], a_list[i], reward_list[i], v_list[i], logp_list[i])
@@ -211,10 +286,13 @@ class multi_ppo:
                 # Update obs 
                 obs_list = next_obs_list[:]
 
+                
+                # Check if the epoch ended, all robots arrived at their destination, or any episode terminated
                 epoch_ended = t == self.steps_per_epoch-1
                 arrive_all = min(info_list) == True
                 terminal = max(done_list) == True or max(ep_len_list) > self.max_ep_len
 
+                # Reset environment and buffer at the end of epoch or when all robots arrive
                 if epoch_ended or arrive_all:
 
                     if epoch + 1 % 300 == 0:
@@ -225,27 +303,30 @@ class multi_ppo:
                     for i in range(self.robot_num):
                         
                         if arrive_all:
-                            ep_ret_list_mean[i].append(ep_ret_list[i])
+                            ep_ret_list_mean[i].append(ep_ret_list[i])  # Store the episode return if all robots arrived
 
-                        ep_ret_list[i] = 0
+                        ep_ret_list[i] = 0  # Reset episode return and length
                         ep_len_list[i] = 0
 
-                        self.buf_list[i].finish_path(0)
+                        self.buf_list[i].finish_path(0) # Finish the path in the buffer
 
+               
+                # Handle terminal condition for individual robots
                 elif terminal:
 
                     for i in range(self.robot_num):
                         if done_list[i] or ep_len_list[i] > self.max_ep_len:
                         
-                            self.env.reset_one(i)
-                            ep_ret_list_mean[i].append(ep_ret_list[i])
-                            ep_ret_list[i] = 0
+                            self.env.reset_one(i)   # Reset the specific robot that terminated
+                            ep_ret_list_mean[i].append(ep_ret_list[i])   # Store the episode retur
+                            ep_ret_list[i] = 0  # Reset episode return and length
                             ep_len_list[i]= 0
 
-                        self.buf_list[i].finish_path(0)
+                        self.buf_list[i].finish_path(0) 
                     
-                    obs_list = self.env.ir_gym.env_observation()
+                    obs_list = self.env.ir_gym.env_observation() # Update observation from the environment
 
+             # Save the model and run policy tests at specified frequencies
             if (epoch % self.save_freq == 0) or (epoch == self.epoch):
                 self.save_model(epoch) 
 
@@ -258,6 +339,7 @@ class multi_ppo:
                     thread = threading.Thread(target=self.pt.policy_test, args=('drl', policy_model, policy_name, result_path, '/results.txt'))
                     thread.start()
 
+            # Calculate and print statistics for the rewards
             mean = [round(np.mean(r), 2) for r in ep_ret_list_mean]               
             max_ret = [round(np.max(r), 2) for r in ep_ret_list_mean]   
             min_ret = [round(np.min(r), 2) for r in ep_ret_list_mean]   
@@ -266,6 +348,7 @@ class multi_ppo:
 
             # update
             # self.update()
+            # Update the policy
             data_list = [buf.get() for buf in self.buf_list]
             if self.mpi:
                 rank_data_list = self.comm.gather(data_list, root=0)
@@ -279,6 +362,8 @@ class multi_ppo:
             # animate
             # if epoch == 1:
             #     self.env.create_animate(self.save_path+'figure/')
+            
+            # Calculate and print the time cost for each epoch
             if self.mpi:
                 if self.rank == 0:
                     time_cost = time.time()-start_time 
@@ -287,6 +372,10 @@ class multi_ppo:
                 time_cost = time.time()-start_time 
                 print('time cost in one epoch', time_cost, 'estimated remain time', time_cost*(self.epoch-epoch)/3600, 'hours' )
             
+            
+            mean_reward = np.mean([np.mean(ep_ret) for ep_ret in ep_ret_list_mean])
+            writer.add_scalar('Reward/average_reward', mean_reward, epoch)
+
     def update(self, data_list, epoch):
         
         randn = np.arange(self.robot_num)
@@ -314,8 +403,8 @@ class multi_ppo:
                 loss_pi.backward()
                 self.pi_optimizer.step()
 
-            writer.add_scalar('Policy Loss/Robot {}'.format(r), loss_pi.item(), epoch)
-            writer.add_scalar('KL Divergence/Robot {}'.format(r), kl, epoch)
+            writer.add_scalar('Loss/policy_loss_robot_{}'.format(r), loss_pi.item(), epoch)
+            writer.add_scalar('KL_Divergence/robot_{}'.format(r), kl, epoch)
 
             # Value function learning
             for i in range(self.train_v_iters):
