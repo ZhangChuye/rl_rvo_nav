@@ -1,1 +1,2 @@
 xvfb-run: error: Xvfb failed to start
+[Ye-PC:157382] [[44140,0],0] ORTE_ERROR_LOG: Broken pipe in file orted/orted_main.c at line 641
