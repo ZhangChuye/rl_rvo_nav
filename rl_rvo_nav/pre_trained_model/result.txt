@@ -1,0 +1,7 @@
+policy_name: rl_rvo_6_dis3  successful rate: 100.00% average EpLen: 74.0 std length 0.0 average speed: 1.15 std speed 0.0
+policy_name: rl_rvo_6_dis3  successful rate: 100.00% average EpLen: 78.0 std length 0.0 average speed: 1.08 std speed 0.0
+policy_name: rl_rvo_6_dis3  successful rate: 100.00% average EpLen: 78.0 std length 0.0 average speed: 1.1 std speed 0.0
+policy_name: rl_rvo_6_dis3  successful rate: 100.00% average EpLen: 78.0 std length 0.0 average speed: 1.12 std speed 0.0
+policy_name: rl_rvo_6_dis3  successful rate: 100.00% average EpLen: 84.0 std length 0.0 average speed: 1.03 std speed 0.0
+policy_name: rl_rvo_6_dis3  successful rate: 100.00% average EpLen: 80.0 std length 0.0 average speed: 1.06 std speed 0.0
+policy_name: rl_rvo_6_dis3  successful rate: 100.00% average EpLen: 71.0 std length 0.0 average speed: 1.2 std speed 0.0

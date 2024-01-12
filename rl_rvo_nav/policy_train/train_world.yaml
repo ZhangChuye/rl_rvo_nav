@@ -1,6 +1,7 @@
 world:
   world_height: 11 #10
   world_width: 11 #10
+  # step_time: 0.05
   step_time: 0.1
 
 robots:
